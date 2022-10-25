@@ -1,6 +1,6 @@
 # jira-server-service-operations
 
-Playbook and a set of roles for [deployment](deployment.yml) and [update](update.yml) of the Atlassian Jira Software Server in a CentOS 8 + Nginx + PostgreSQL environment based on Proxmox virtualization.
+Playbook and a set of roles for [deployment](deployment.yml) and [update](update.yml) of the [Atlassian Jira Software Server](https://www.atlassian.com/software/jira/download-journey) in a CentOS 8 Stream (cloud init template required on your proxmox node) + Nginx + PostgreSQL environment based on [Proxmox](https://www.proxmox.com) virtualization.
 
 ## HOWTO
 
