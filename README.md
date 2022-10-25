@@ -18,7 +18,7 @@ Previous versions of applications are stored in the _/opt_ directory.
 Postgres, nginx, elastic- and zabbix-agents are installed and configured with _procedure == 'deployment'_. Application settings are contained in the description of [roles](roles/).
 
 ## Restoring from a backup
-To [restore](restore.yml) from a backup, set the _restore_from_backup_ variable to **yes** and set the backup date - _backup_date_ in the "YYYY-MM-DD" format, or use "{{ ansible_date_time.date }}".
+To [restore](restore.yml) from a backup, set the _restore_from_backup_ variable to **yes** and set the backup date - _backup_date_ in the "_YYYY-MM-DD_" format, or use "_{{ ansible_date_time.date }}_".
 
 Start the recovery process separately:
 
