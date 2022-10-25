@@ -26,7 +26,7 @@ Also you should have [cloud-init template image](https://pve.proxmox.com/wiki/Cl
 
 ## Restoring from a backup
 
-To [restore](restore.yml) from a backup, set the _restore_from_backup_ variable to **yes** and set the backup date - _backup_date_ in the "_YYYY-MM-DD_" format, or use "_{{ ansible_date_time.date }}_".
+To [restore](restore.yml) from a backup, set the _restore_from_backup_ variable to **yes** and set the _backup_date_ in the "_YYYY-MM-DD_" format, or use "_{{ ansible_date_time.date }}_".
 
 Start the recovery process separately:
 
