@@ -2,7 +2,7 @@
 
 Playbook and a set of roles for [deployment](deployment.yml) and [update](update.yml) of the [Atlassian Jira Software Server](https://www.atlassian.com/software/jira/download-journey) in a CentOS 8 Stream (cloud init template required on your proxmox node) + Nginx + PostgreSQL environment based on [Proxmox](https://www.proxmox.com) virtualization.
 
-## HOWTO
+## Deployment and update
 
 The main variables (version of Jira, postgres, java, etc.) are in [defaults/main.yml](defaults/main.yml). To change the procedure from install to update, change the _procedure_ variable from **deployment** to **update**, than run with:
 
@@ -18,10 +18,25 @@ Previous versions of applications are stored in the _/opt_ directory.
 Postgres, nginx, elastic- and zabbix-agents are installed and configured with _procedure == 'deployment'_. Application settings are contained in the description of [roles](roles/).
 
 ## Restoring from a backup
+
 To [restore](restore.yml) from a backup, set the _restore_from_backup_ variable to **yes** and set the backup date - _backup_date_ in the "_YYYY-MM-DD_" format, or use "_{{ ansible_date_time.date }}_".
 
 Start the recovery process separately:
 
 ```
 jira-server-sop$ ansible-playbook restore.yml
+```
+
+## Run Jira as a service
+
+On the jira app server run with root privileges:
+
+```
+~# systemctl start jira
+```
+
+To stop jira, type and execute following command:
+
+```
+~# systemctl stop jira
 ```
