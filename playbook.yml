@@ -1,0 +1,60 @@
+---
+- import_playbook: cleanup-vms.yml
+  when: procedure == "deployment"
+
+- import_playbook: create-vms.yml
+  when: procedure == "deployment"
+
+- import_playbook: ssh-setup.yml
+  when: procedure == "deployment"
+
+- import_playbook: staging-firewall.yml
+  when: inventory_hostname in groups['staging']
+
+- hosts: all_hosts
+  become: yes
+  strategy: free
+  vars_files:
+    - defaults/main.yml
+  tasks:
+    - name: Set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+    
+    - name: Set timezone to {{ time_zone }}
+      timezone:
+        name: "{{ time_zone }}"
+    
+    - name: Update all packages
+      dnf:
+        name: '*'
+        state: latest
+      when: update_packages == True
+
+    - name: Install necessary packages
+      dnf:
+        name:
+          - nfs-utils
+          - rsync
+          - htop
+          - wget
+          - net-tools
+          - bind-utils
+          - telnet
+          - vim
+          - nano
+          - unzip
+          - tar
+        state: present
+
+    - name: Start JIRA deployment
+      include_tasks: deployment.yml
+      when: procedure == "deployment"
+
+    - name: Start JIRA update
+      include_tasks: update.yml
+      when: procedure == "update"
+
+- import_playbook: restore.yml
+  when: restore_from_backup == True and backup_date is defined
+...

@@ -1,0 +1,56 @@
+# By PgTune - https://pgtune.leopard.in.ua/
+# DB Version: 12
+# OS Type: linux
+# DB Type: web
+# Total Memory (RAM): 20 GB
+# CPUs num: 16
+# Connections num: 100
+# Data Storage: ssd
+
+listen_addresses = '*'
+port = 5432
+
+max_connections = 100
+shared_buffers = 5GB
+effective_cache_size = 15GB
+maintenance_work_mem = 1280MB
+checkpoint_completion_target = 0.9
+wal_buffers = 16MB
+default_statistics_target = 100
+random_page_cost = 1.1
+effective_io_concurrency = 200
+work_mem = 13107kB
+min_wal_size = 1GB
+max_wal_size = 4GB
+max_worker_processes = 16
+max_parallel_workers_per_gather = 4
+max_parallel_workers = 16
+max_parallel_maintenance_workers = 4
+
+archive_mode = off
+archive_command = 'pgbackrest --stanza=jira-db archive-push %p'
+archive_timeout = 1800
+
+log_destination = 'stderr'
+logging_collector = on
+log_directory = 'log'
+log_filename = 'postgresql-%a.log'
+log_truncate_on_rotation = on
+log_rotation_age = 30d
+log_rotation_size = 0
+log_line_prefix = '%m [%p] '
+log_timezone = 'Europe/Moscow'
+
+datestyle = 'iso, mdy'
+timezone = 'Europe/Moscow'
+lc_messages = 'en_US.UTF-8'
+lc_monetary = 'en_US.UTF-8'
+lc_numeric = 'en_US.UTF-8'
+lc_time = 'en_US.UTF-8'
+default_text_search_config = 'pg_catalog.russian'
+
+# Shared Library Preloading
+shared_preload_libraries = 'pg_stat_statements'
+
+# Custom configs directory
+include_dir = '/var/lib/pgsql/12/data/conf.d'

@@ -1,0 +1,109 @@
+---
+- name: Verify OS requirements
+  assert:
+    that:
+      - ansible_distribution_file_variety == "RedHat"
+      - ansible_distribution_major_version|int >= 7
+    msg: "This role is for RHEL (CentOS) version 7 or higher"
+
+- name: sysctl | Setting Kernel Parameters
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: "yes"
+    state: "present"
+    reload: "yes"
+  loop: "{{ sysctl_conf | flatten(1) }}"
+  when:  sysctl_conf is defined and sysctl_conf | length > 0
+
+- name: Disable transparent huge pages
+  include_tasks: disable-thp.yml
+  when: disable_thp is defined and disable_thp == true
+
+- name: Install postgresql and additional packages
+  include_tasks: packages.yml
+
+- name: Create PostgreSQL homedir owner and mode
+  file:
+    path: "{{ postgresql_homedir }}"
+    state: directory
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_user }}"
+    mode: '0750'
+
+- name: Open PostgreSQL port in firewall
+  firewalld:
+    zone: public
+    port: "5432/tcp"
+    permanent: yes
+    state: enabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: DB cluster initialization
+  become_user: "{{ postgresql_user }}"
+  command: >
+    /usr/pgsql-{{ postgresql_version_raw }}/bin/initdb
+    --pgdata={{ postgresql_datadir | quote }}
+    --encoding={{ postgresql_encoding }}
+    --locale={{ postgresql_locale }}
+    --lc-collate={{ postgresql_lc_collate|default(postgresql_locale) }}
+    --lc-messages={{ postgresql_lc_messages }}
+  args:
+    creates: "{{ postgresql_datadir }}/PG_VERSION"
+
+- name: Create custom config and WAL backup dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_user }}"
+    mode: '0700'
+  loop:
+    - "{{ postgresql_include_dir }}"
+    - "{{ postgresql_basedir }}/pg_archive"
+
+- name: Template custom PostgreSQL configuration
+  become_user: "{{ postgresql_user }}"
+  template:
+    src: "{{ item }}"
+    dest: "{{ postgresql_datadir }}/{{ item }}"
+    mode: '0600'
+  loop:
+    - postgresql.conf.j2
+    - pg_hba.conf.j2
+  notify: reload postgresql direct
+
+- name: Start and enable PostgreSQL service
+  service:
+    name: "postgresql-{{ postgresql_version_raw }}"
+    state: started
+    enabled: yes
+
+- name: Create additional PostgreSQL users
+  become_user: "{{ postgresql_user }}"
+  postgresql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    encrypted: "yes"
+    state: present
+  ignore_errors: yes
+  loop: "{{ jira_postgres_users | flatten(1) }}"
+  when: jira_postgres_users|length > 0
+
+- name: Create PostgreSQL JIRA database
+  become_user: "{{ postgresql_user }}"
+  postgresql_db:
+    name: "{{ item.db }}"
+    owner: "{{ item.owner }}"
+    encoding: "{{ item.encoding }}"
+    lc_collate: "{{ item.lc_collate }}"
+    lc_ctype: "{{ item.lc_ctype }}"
+    template: "{{ item.template }}"
+    state: present
+  loop: "{{ postgresql_databases | flatten(1) }}"
+  when: postgresql_databases|length > 0
+...

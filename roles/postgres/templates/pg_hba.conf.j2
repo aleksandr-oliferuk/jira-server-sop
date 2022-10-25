@@ -1,0 +1,18 @@
+# THIS FILE IS ANSIBLE MANAGED.
+# HANDS OFF!
+#
+# pg_hba.conf: client authentication control file for PostgreSQL
+#
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# Local socket connections (peer)
+local   all             postgres                                peer
+local   all             all                                     peer
+
+# IPv4 local connections (authenticated)
+## ANSIBLE MANAGED ##
+# IPv4 local connections (ident):
+host    all             all             127.0.0.1/32            md5
+# IPv4 remote connections
+host    {{ jiradb }}      {{ jira_db_user }}      {{ hostvars['jira'].ansible_host }}/32       md5
+### EOF ###

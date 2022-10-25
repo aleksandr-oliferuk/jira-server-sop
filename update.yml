@@ -1,0 +1,11 @@
+---
+- name: Update java and jira application
+  include_role:
+    name: "{{ role }}"
+  loop:
+    - java
+    - jira
+  loop_control:
+    loop_var: role
+  when: inventory_hostname in groups['application']
+...

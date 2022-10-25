@@ -1,0 +1,52 @@
+---
+- name: Copy elastic-agent rpm to the host
+  copy:
+    src: elastic-agent-{{ elk_version }}-x86_64.rpm
+    dest: /tmp/elastic-agent-{{ elk_version }}-x86_64.rpm
+
+- name: Install elastic-agent
+  dnf:
+    name: /tmp/elastic-agent-{{ elk_version }}-x86_64.rpm
+    state: present
+
+- name: Remove agent rpm
+  file:
+    path: /tmp/elastic-agent-{{ elk_version }}-x86_64.rpm
+    state: absent
+
+- name: Set Jira elk id
+  set_fact:
+    elk_id: "945d2410-1891-11ed-a6c3-1342a76f9d6c"
+  when: inventory_hostname in groups['application']
+
+- name: Set postgres elk id
+  set_fact:
+    elk_id: "4cef9280-22fe-11ed-a6c3-1342a76f9d6c"
+  when: inventory_hostname in groups['database']
+
+- name: Setup agent for jira
+  template:
+    src: jira.yml.j2
+    dest: /etc/elastic-agent/elastic-agent.yml
+  when: inventory_hostname in groups['application']
+
+- name: Setup agent for postgres
+  template:
+    src: postgres.yml.j2
+    dest: /etc/elastic-agent/elastic-agent.yml
+  when: inventory_hostname in groups['database']
+
+- name: Start and enable elastic-agent service
+  systemd:
+    name: elastic-agent
+    state: restarted
+    enabled: yes
+  when: inventory_hostname in groups['production']
+
+- name: Stop and disable elastic-agent service
+  systemd:
+    name: elastic-agent
+    state: stopped
+    enabled: no
+  when: inventory_hostname in groups['staging']
+...

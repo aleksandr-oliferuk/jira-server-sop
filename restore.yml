@@ -1,0 +1,61 @@
+---
+- hosts: all_hosts
+  become: yes
+  vars_files:
+    defaults/main.yml
+  tasks:
+    - name: Application server tasks
+      block:
+        - name: Get snapshot id
+          shell: restic -r sftp:backup_user@backaup_server:/restic_repo_path snapshots | grep 23:55 | grep {{ backup_date }} |awk '{print $1}'
+          environment:
+            RESTIC_PASSWORD: "restic"
+          register: snapshot_id
+        
+        - name: Remove Jira home
+          file:
+            path: /var/atlassian
+            state: absent
+        
+        - name: Restore Jira home
+          shell: restic -r sftp:backup_user@backaup_server:/restic_repo_path restore {{ snapshot_id.stdout }} --target / && chown -R jira:jira /var/atlassian
+          environment:
+            RESTIC_PASSWORD: "restic"
+          async: 648000
+          poll: 0
+      when: inventory_hostname in groups['application']
+
+    - name: Database server tasks
+      block:    
+        - name: Get db backup
+          shell: scp shareadmin@wilson-true.gs-labs.tv:/mnt/d/JIRA/db/jiradb.{{ backup_date }}.sql /tmp/.
+          async: 5400
+          poll: 1
+
+        - name: Change db dump ownership
+          file:
+            path: /tmp/jiradb.{{ backup_date }}.sql
+            owner: postgres
+            group: postgres
+            mode: '0400'
+        
+        - name: Postgres tasks
+          block:
+            - name: Restore {{ jira_db }} database
+              shell: psql {{ jira_db }} -f /tmp/jiradb.{{ backup_date }}.sql
+              async: 3600
+              poll: 1
+
+            - name: Remove db dump
+              file:
+                path: /tmp/jiradb.{{ backup_date }}.sql
+                state: absent
+            
+            - name: Grant priveleges on Jira db
+              shell: psql -d {{ jira_db }} -c 'GRANT ALL PRIVILEGES ON DATABASE {{ jira_db }} TO {{ jira_db_user }};'
+            
+            - name: Update Jira Base URL
+              shell: psql -d {{ jira_db }} -c "UPDATE propertystring SET propertyvalue = 'https://{{ fqdn }}' FROM propertyentry PE WHERE PE.id=propertystring.id AND PE.property_key = 'jira.baseurl';"
+          become_user: postgres
+      when: inventory_hostname in groups['database']
+...

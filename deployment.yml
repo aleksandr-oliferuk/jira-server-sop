@@ -1,0 +1,25 @@
+---
+- name: Deploy jira application
+  include_role:
+    name: "{{ role }}"
+  loop:
+    - java
+    - jira
+    - nginx
+    - elastic-agent
+    - zabbix-agent
+  loop_control:
+    loop_var: role
+  when: inventory_hostname in groups['application']
+
+- name: Deploy jira database
+  include_role:
+    name: "{{ role }}"
+  loop:
+    - postgres
+    - elastic-agent
+    - zabbix-agent
+  loop_control:
+    loop_var: role
+  when: inventory_hostname in groups['database']
+...

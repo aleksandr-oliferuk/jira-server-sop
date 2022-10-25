@@ -1,0 +1,25 @@
+---
+- name: Install yum-utils
+  dnf:
+    name: yum-utils
+    state: present
+
+- name: Add nginx repo
+  template:
+    src: nginx_rhel.repo.j2
+    dest: /etc/yum.repos.d/nginx.repo
+
+- name: Install nginx - latest
+  dnf:
+    name: nginx
+    state: latest
+  notify: start and enable nginx
+  when: nginx_version is not defined
+
+- name: Install nginx - {{ nginx_version }}
+  dnf:
+    name: nginx-{{ nginx_version }}
+    state: present
+  notify: start and enable nginx
+  when: nginx_version is defined
+...

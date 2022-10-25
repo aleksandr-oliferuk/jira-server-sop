@@ -1,0 +1,62 @@
+---
+- name: Create site directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  loop: "{{ nginx_site_directories }}"
+  when: nginx_site_directories is defined
+
+- name: Update configuration files
+  template:
+    src: "{{ item.src }}"
+    dest:  "{{ item.dest }}"
+    owner: nginx
+    group: nginx
+  loop: "{{ nginx_modified_files }}"
+  when: nginx_modified_files is defined
+
+- name: Enable sites
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  loop: "{{ nginx_enabled_sites }}"
+  when: nginx_enabled_sites is defined
+
+- name: Copy selinux policy package for nginx
+  copy:
+    src: "{{ item }}"
+    dest: "/tmp/{{ item }}"
+  loop:
+    - selinux.pp
+    - selinux.te
+
+- name: Apply selinux policy package
+  command: "semodule -i /tmp/selinux.pp"
+  notify: restart nginx
+
+- name: Remove temporary files
+  file:
+    path: "/tmp/{{ item }}"
+    state: absent
+  loop:
+    - selinux.pp
+    - selinux.te
+
+- name: Open web ports on firewall
+  firewalld:
+    zone: public
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+  loop:
+    - 80/tcp
+    - 443/tcp
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+    enabled: yes
+...

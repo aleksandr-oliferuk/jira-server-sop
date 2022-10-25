@@ -1,0 +1,28 @@
+---
+- hosts: all_hosts
+  become: yes
+  strategy: free
+  vars_files:
+    - "defaults/main.yml"
+  tasks:
+    - name: Run and enable firewalld
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: CLose network access to production hosts
+      command: firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -d {{ restricted_ip }} -j DROP
+      loop:
+        - mail_server_ip
+        - jira_prod_app_ip
+        - jira_prod_db_ip
+        - confluence_prod_ip
+      loop_control:
+        loop_var: restricted_ip
+    
+    - name: Reload firewalld
+      systemd:
+        name: firewalld
+        state: reloaded
+...

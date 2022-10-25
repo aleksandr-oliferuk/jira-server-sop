@@ -1,0 +1,50 @@
+---
+# Proxmox VMs settings
+pve_host: 
+pve_user: 
+pve_password: 
+pve_node: 
+
+vms:
+  jira:
+    clone_vm: centos8-base-system
+    name: jira
+    vmid: 1
+    cores:
+    sockets:
+    memory:
+    disk_type: scsi
+    storage_size:
+    description: "JIRA APPLICATION"
+    network_device: virtio
+    mac_address:
+    ip_address: {{ hostvars['jira'].ansible_host }}
+    netmask:
+    gateway:
+    nameserver:
+    ciuser:
+    cipassword:
+    sshkeys:
+      - your-ansible-ssh-key
+
+  jira-db:
+    clone_vm: centos8-base-system
+    name: jira-db
+    vmid: 2
+    cores: 
+    sockets: 
+    memory: 
+    disk_type: scsi
+    storage_size: 
+    description: "POSTGRES SERVER"
+    network_device: virtio
+    mac_address: 
+    ip_address: {{ hostvars['jira-db'].ansible_host }}
+    netmask: 
+    gateway: 
+    nameserver: 
+    ciuser: 
+    cipassword: 
+    sshkeys:
+      - your-ansible-ssh-key
+...

@@ -1,0 +1,20 @@
+---
+jira_app_directory: /opt/atlassian/jira
+jira_home_directory: /var/atlassian/application-data/jira
+jira_user: jira
+jdbc_version: 42.2.23
+
+jira_modified_files:
+  - { src: "velocity.properties", dest: "{{ jira_app_directory }}/atlassian-jira/WEB-INF/classes/" }
+  - { src: "ProductGroup.vm", dest: "{{ jira_app_directory }}/atlassian-jira/WEB-INF/classes/templates/email/html/includes/fields/" }
+  - { src: "header.vm", dest: "{{ jira_app_directory }}/atlassian-jira/WEB-INF/classes/templates/email/html/includes/" }
+  - { src: "summary-bottom.vm", dest: "{{ jira_app_directory }}/atlassian-jira/WEB-INF/classes/templates/email/html/includes/" }
+  - { src: "footer.vm", dest: "{{ jira_app_directory }}/atlassian-jira/WEB-INF/classes/templates/email/html/includes/" }
+  - { src: "issuecreated.vm", dest: "{{ jira_app_directory }}/atlassian-jira/WEB-INF/classes/templates/email/html/" }
+  - { src: "server.xml.j2", dest: "{{ jira_app_directory }}/conf/server.xml" }
+  - { src: "setenv.sh.j2", dest: "{{ jira_app_directory }}/bin/setenv.sh" }
+  - { src: "set-gc-params.sh.j2", dest: "{{ jira_app_directory }}/bin/set-gc-params.sh" }
+  - { src: "check-java.sh.j2", dest: "{{ jira_app_directory }}/bin/check-java.sh" }
+  - { src: "jira-application.properties.j2", dest: "{{ jira_app_directory }}/atlassian-jira/WEB-INF/classes/jira-application.properties" }
+  - { src: "jira-config.properties.j2", dest: "{{ jira_home_directory }}/jira-config.properties" }
+...

@@ -1,0 +1,43 @@
+---
+- name: Enable PostgreSQL repo
+  dnf:
+    name: 'https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm'
+    state: present
+    disable_gpg_check: yes
+
+- name: Disable built-in postgresql module
+  command: 'dnf -qy module disable postgresql warn=false'
+
+- name: Install PostgreSQL and additional packages
+  dnf:
+    name:
+      - postgresql{{ postgresql_version_norm }}
+      - postgresql{{ postgresql_version_norm }}-server
+      - postgresql{{ postgresql_version_norm }}-contrib
+      - libpq-devel
+      - python3-pip
+      - python3-psycopg2
+      - compat-openssl10
+      - python3-dnf-plugin-versionlock
+    state: present
+    update_cache: yes
+
+- name: Add pg_config to the PATH
+  file:
+    src: /usr/pgsql-{{ postgresql_version }}/bin/pg_config
+    dest: /usr/bin/pg_config
+    state: link
+
+- name: Make sure psycopg2 is installed
+  pip:
+    name: psycopg2
+    state: present
+
+- name: Install pgbackrest 2.23
+  dnf:
+    name: 'https://ftp.postgresql.org/pub/repos/yum/common/redhat/rhel-6.5-x86_64/pgbackrest-2.23-1.rhel6.x86_64.rpm'
+    state: present
+
+- name: Prevent pgbackrest updates
+  command: 'dnf versionlock pgbackrest warn=false'
+...

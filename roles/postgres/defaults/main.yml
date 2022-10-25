@@ -1,0 +1,29 @@
+---
+postgresql_version_raw: "{{ postgresql_version|string }}"
+postgresql_version_norm: "{{ postgresql_version_raw|regex_replace('\\.', '') }}"
+postgresql_homedir: "/var/lib/pgsql"
+postgresql_basedir: "{{ postgresql_homedir }}/{{ postgresql_version_raw }}"
+postgresql_datadir: "{{ postgresql_basedir }}/data"
+postgresql_include_dir: "{{ postgresql_datadir }}/conf.d"
+postgresql_encoding: "utf8"
+postgresql_locale: "en_US.UTF-8"
+postgresql_lc_messages: "en_US.UTF-8"
+postgresql_user: postgres
+postgresql_reload_direct: yes
+postgresql_wal_backup_enable: false
+postgresql_drop_databases: false
+
+jira_postgres_users:
+  - { name: "{{ jira_db_user }}" , password: "{{ jira_db_password }}" }
+
+postgresql_databases:
+  - { db: "{{ jira_db }}", owner: "{{ jira_db_user }}", encoding: "UNICODE", lc_collate: "C", lc_ctype: "C", template: "template0" }
+
+# Tuning information - https://postgrespro.ru/docs/postgrespro/10/kernel-resources
+sysctl_conf:
+  - { name: "vm.nr_hugepages", value: "2705" }
+  - { name: "vm.nr_hugepages_mempolicy", value: "2705" }
+  - { name: "vm.overcommit_memory", value: "2" }
+
+disable_thp: false # disable transparent huge pages - true or false
+...

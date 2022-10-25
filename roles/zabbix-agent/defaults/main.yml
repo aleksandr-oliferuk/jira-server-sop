@@ -1,0 +1,5 @@
+---
+zabbix_version: #'6.0'
+zabbix_server: # zabbix server address
+zabbix_hostname: # Sets in tasks
+...

@@ -1,0 +1,7 @@
+---
+elk_version: # '8.0.1'
+elk_id: # Sets in tasks; generates on elk server
+elk_fqdn: # elasticsearch server address
+elk_username: # elasticsearch username
+elk_password: # elasticsearch password
+...

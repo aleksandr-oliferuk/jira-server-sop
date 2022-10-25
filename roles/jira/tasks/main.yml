@@ -1,0 +1,74 @@
+---
+- name: Create a JIRA user
+  user:
+    name: "{{ jira_user }}"
+    state: present
+  when: procedure == "deployment"
+
+- name: Stop Jira service
+  systemd:
+    name: jira
+    state: stopped
+  when: procedure == "update"
+
+- name: Remove old Jira installation
+  file:
+    path: "{{ jira_app_directory }}"
+    state: absent
+  when: procedure == "update"
+
+- name: Create JIRA app directory
+  file:
+    path: "{{ jira_app_directory }}-{{ jira_version }}"
+    state: directory
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user }}"
+
+- name: Create symbolic link to default Jira path
+  file:
+    src: "{{ jira_app_directory }}-{{ jira_version }}"
+    dest: "{{ jira_app_directory }}"
+    state: link
+
+- name: Create JIRA home directory
+  file:
+    path: "{{ jira_home_directory }}"
+    state: directory
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user }}"
+  when: procedure == "deployment"
+
+- name: Download and unarchive JIRA
+  unarchive:
+    src: "https://product-downloads.atlassian.com/software/jira/downloads/atlassian-jira-software-{{ jira_version }}.tar.gz"
+    dest: "{{ jira_app_directory }}"
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user }}"
+    extra_opts: [--strip-components=1]
+    remote_src: true
+
+- name: Update configuration files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user }}"
+    backup: yes
+  loop: "{{ jira_modified_files }}"
+  when: jira_modified_files is defined
+
+- name: Setup running JIRA as service
+  template:
+    src: jira.service.j2
+    dest: /lib/systemd/system/jira.service
+  notify: reload systemd
+  when: procedure == "deployment"
+
+- name: Download postgresql jdbc driver
+  get_url:
+    url: "https://jdbc.postgresql.org/download/postgresql-{{ jdbc_version }}.jar"
+    dest: "{{ jira_app_directory }}/lib/"
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user }}"
+  when: jdbc_version is defined and procedure == "deployment"
+...

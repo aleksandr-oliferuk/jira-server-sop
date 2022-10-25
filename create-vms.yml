@@ -1,0 +1,86 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - "defaults/main.yml"
+    - "defaults/proxmox.yml"
+  tasks:
+    - name: Clone VMs
+      proxmox_kvm:
+        api_host: "{{ pve_host }}"
+        api_user: "{{ pve_user }}"
+        api_password: "{{ pve_password }}"
+        node: "{{ pve_node }}"
+        name: "{{ item.value.name }}"
+        newid: "{{ item.value.vmid }}"
+        clone: "{{ item.value.clone_vm }}"
+        full: yes
+        timeout: 100
+      loop: "{{ lookup('dict', vms, wantlist=True) }}"
+
+    - name: Get Authentication ticket
+      uri:
+        url: "https://{{ pve_host }}:8006/api2/json/access/ticket"
+        method: POST
+        body_format: form-urlencoded
+        body:
+          username: "{{ pve_user }}"
+          password: "{{ pve_password }}"
+        validate_certs: no
+      register: auth
+
+    - name: Configure VMs
+      uri:
+        url: "https://{{ pve_host }}:8006/api2/json/nodes/{{ pve_node }}/qemu/{{ item.value.vmid }}/config"
+        method: PUT
+        headers:
+          Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+          CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+        body_format: form-urlencoded
+        body:
+          cores: "{{ item.value.cores }}"
+          sockets: "{{ item.value.sockets }}"
+          memory: "{{ item.value.memory }}"
+          description: "{{ item.value.description }}"
+          ipconfig0: "ip={{ item.value.ip_address}}/{{ item.value.netmask }},gw={{ item.value.gateway }}"
+          net0: "{{ item.value.network_device }}={{ item.value.mac_address }},bridge=vmbr0"
+          nameserver: "{{ item.value.nameserver }}"
+          ciuser: "{{ item.value.ciuser }}"
+          cipassword: "{{ item.value.cipassword }}"
+          sshkeys: "{{ item.value.sshkeys | join('\n') | urlencode | replace('/','%2F') }}"
+        validate_certs: no
+      loop: "{{ lookup('dict', vms, wantlist=True) }}"
+
+    - name: Resize disk VMs
+      uri:
+        url: "https://{{ pve_host }}:8006/api2/json/nodes/{{ pve_node }}/qemu/{{ item.value.vmid }}/resize"
+        method: PUT
+        headers:
+          Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+          CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+        body_format: form-urlencoded
+        body:
+          disk:  "{{ item.value.disk_type }}0"
+          size: "{{ item.value.storage_size }}"
+        validate_certs: no
+      loop: "{{ lookup('dict', vms, wantlist=True) }}"
+
+    - name: Start VMs
+      proxmox_kvm:
+        api_host: "{{ pve_host }}"
+        api_user: "{{ pve_user }}"
+        api_password: "{{ pve_password }}"
+        vmid: "{{ item.value.vmid }}"
+        node: "{{ pve_node }}"
+        state: started
+      loop: "{{ lookup('dict', vms, wantlist=True) }}"
+
+    - name: Wait Vms to be ready
+      wait_for:
+        port: 22
+        host: "{{ item.value.ip_address }}"
+        search_regex: OpenSSH
+        delay: 10
+        timeout: 30
+      loop: "{{ lookup('dict', vms, wantlist=True) }}"
+...

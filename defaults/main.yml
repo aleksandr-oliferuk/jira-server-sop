@@ -1,0 +1,21 @@
+---
+procedure: # deployment or update
+jira_version: # 8.20.10 # Jira Software version
+postgresql_version: # 12 # PostgreSQL major version
+java_release_version: # 11 # Java major version
+fqdn: # www.jira.com # Jira fqdn
+confl_fqdn: # www.confluence.com # confluence fqdn (for integration setup)
+confl_ip: # confluence ip (for integration setup)
+jira_db: # Jira db name
+jira_db_user: # Jira db user
+jira_db_password: # Jira db password
+java_home_directory: /opt/java # Java app home
+java_default_path: "{{ java_home_directory }}/default" # Java default path (used by Jira service)
+jvm_minimum_memory: # JVM settings for Jira
+jvm_maximum_memory: # JVM settings for Jira
+time_zone: # Time zone
+restore_from_backup: # yes or no
+update_packages: # dnf -y update
+backup_date: # "{{ ansible_date_time.date }}"
+# Other software vars are in roles variables
+...

@@ -1,0 +1,18 @@
+#if ($issue.getProject().getString("key") == 'STB')
+<tr>
+        <th><b>Product Group:</b></th>
+        <td>
+                $issue.getCustomFieldValue("customfield_10605")
+        </td>
+</tr>
+#end
+
+#if ($issue.getProject().getString("key") == 'CRT')
+#set ($customField = $issue.getCustomField("customfield_10607"))
+        #if ($issue.getCustomFieldValue($customField))
+        <tr>
+                <td><b>$stringUtils.leftPad($issue.getCustomField("customfield_10607").name, $padSize):</b></td>
+                <td>$issue.getCustomFieldValue($customField)</td>
+        </tr>
+        #end
+#end

@@ -1,0 +1,32 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - "defaults/main.yml"
+    - "defaults/proxmox.yml"
+  tasks:
+    - name: Stop VMs
+      proxmox_kvm:
+        api_host: "{{ pve_host }}"
+        api_user: "{{ pve_user }}"
+        api_password: "{{ pve_password }}"
+        node: "{{ pve_node }}"
+        vmid: "{{ item.value.vmid }}"
+        state: stopped
+        force: yes
+        timeout: 100
+      loop: "{{ lookup('dict', vms, wantlist=True) }}"
+      ignore_errors: yes
+
+    - name: Clean up VMs
+      proxmox_kvm:
+        api_host: "{{ pve_host }}"
+        api_user: "{{ pve_user }}"
+        api_password: "{{ pve_password }}"
+        node: "{{ pve_node }}"
+        vmid: "{{ item.value.vmid }}"
+        state: absent
+        timeout: 100
+      loop: "{{ lookup('dict', vms, wantlist=True) }}"
+      ignore_errors: yes
+...

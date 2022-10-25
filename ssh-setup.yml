@@ -1,0 +1,30 @@
+---
+- hosts: all_hosts
+  become: yes
+  vars_files:
+    - "defaults/main.yml"
+  tasks:
+    - name: Create .ssh dir for root
+      file:
+        dest: /root/.ssh
+        state: directory
+        mode: "0700"
+
+    - name: Put ssh private key
+      copy:
+        src: files/ssh/id_rsa.pub
+        dest: /root/.ssh/id_rsa.pub
+        mode: "0644"
+
+    - name: Put ssh public key
+      copy:
+        src: files/ssh/id_rsa
+        dest: /root/.ssh/id_rsa
+        mode: "0600"
+
+    - name: Restrict ssh key checking
+      copy:
+        src: files/ssh/config
+        dest: /root/.ssh/config
+        mode: "0400"
+...

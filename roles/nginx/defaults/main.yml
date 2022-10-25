@@ -1,0 +1,22 @@
+---
+# nginx_version: 0.0.1
+nginx_repo_name: nginx-stable
+nginx_site_directories:
+  - /etc/nginx/ssl
+  - /etc/nginx/snippets
+  - /etc/nginx/sites-enabled
+  - /etc/nginx/sites-available
+  - /var/log/nginx/{{ fqdn }}
+  - /var/lib/nginx/cache/jira
+
+nginx_modified_files:
+  - { src: nginx.conf.j2, dest: /etc/nginx/nginx.conf }
+  - { src: jira_cache.conf, dest: /etc/nginx/snippets/jira_cache.conf }
+  - { src: jira.j2, dest: /etc/nginx/sites-available/jira }
+  - { src: server.crt, dest: /etc/nginx/ssl/server.crt }
+  - { src: server.key, dest: /etc/nginx/ssl/server.key }
+  - { src: error.html, dest: /usr/share/nginx/error.html }
+
+nginx_enabled_sites:
+  - { src: /etc/nginx/sites-available/jira, dest: /etc/nginx/sites-enabled/jira }
+...

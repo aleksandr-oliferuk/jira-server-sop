@@ -1,0 +1,9 @@
+---
+java_type: jre
+java_release: latest
+openjdk_impl: hotspot
+host_os: linux
+host_arch: x64
+java_environment_update: yes
+openjdk_api_url: "https://api.adoptium.net/v3/assets/latest/11/hotspot?architecture=x64&image_type=jre&os=linux"
+...
