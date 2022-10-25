@@ -4,7 +4,7 @@ Playbook and a set of roles for [deployment](deployment.yml) and [update](update
 
 ## Deployment and update
 
-The main variables (version of Jira, postgres, java, etc.) are in [defaults/main.yml](defaults/main.yml). To change the procedure from install to update, change the _procedure_ variable from **deployment** to **update**, than run with:
+The main variables (version of Jira, postgres, java, etc.) are in [defaults/main.yml](defaults/main.yml). To change the procedure from deployment to update, change the _procedure_ variable from **deployment** to **update**, than run with:
 
 ```
 jira-server-sop$ ansible-playbook playbook.yml
