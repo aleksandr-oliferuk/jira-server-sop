@@ -4,11 +4,7 @@ Playbook and a set of roles for [deployment](deployment.yml) and [update](update
 
 ## Deployment and update
 
-The main variables (version of Jira, postgres, java, etc.) are in [defaults/main.yml](defaults/main.yml). To change the procedure from deployment to update, change the _procedure_ variable from **deployment** to **update**, than run with:
-
-```
-jira-server-sop$ ansible-playbook playbook.yml
-```
+The main variables (version of Jira, postgres, java, etc.) are in [defaults/main.yml](defaults/main.yml). To change the procedure from deployment to update, change the _procedure_ variable from **deployment** to **update**.
 
 **Beware**, in the [deployment procedure](deployment.yml), the first step is to [stop and **remove(!)**](cleanup-vms.yml) existing VMs on the proxmox node and then [create new ones](create-vms.yml). The Proxmox VMs and host configuration are set here - [defaults/proxmox.yml](defaults/proxmox.yml).
 
@@ -16,6 +12,16 @@ jira-server-sop$ ansible-playbook playbook.yml
 Previous versions of applications are stored in the _/opt_ directory.
 
 Postgres, nginx, elastic- and zabbix-agents are installed and configured with _procedure == 'deployment'_. Application settings are contained in the description of [roles](roles/).
+
+To launch chosen procedure, run:
+
+```
+jira-server-sop$ ansible-playbook playbook.yml
+```
+
+## Requirements
+
+For interaction with Promox [community.general.proxmox module](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html) is used.
 
 ## Restoring from a backup
 
