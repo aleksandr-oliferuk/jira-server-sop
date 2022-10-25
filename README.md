@@ -22,6 +22,7 @@ jira-server-sop$ ansible-playbook playbook.yml
 ## Requirements
 
 For interaction with Promox [community.general.proxmox module](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html) is used.
+Also you should have [cloud-init template image](https://pve.proxmox.com/wiki/Cloud-Init_Support) on your proxmox server, with [resize disk option](https://stafwag.github.io/blog/blog/2019/03/03/howto-use-centos-cloud-images-with-cloud-init) available on it. _Better use terraform_
 
 ## Restoring from a backup
 
