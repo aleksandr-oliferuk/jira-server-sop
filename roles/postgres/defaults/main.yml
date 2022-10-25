@@ -25,5 +25,5 @@ sysctl_conf:
   - { name: "vm.nr_hugepages_mempolicy", value: "2705" }
   - { name: "vm.overcommit_memory", value: "2" }
 
-disable_thp: false # disable transparent huge pages - true or false
+disable_thp: false # disable transparent huge pages before tuning - true or false
 ...

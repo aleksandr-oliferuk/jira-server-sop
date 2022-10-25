@@ -13,7 +13,7 @@ java_home_directory: /opt/java # Java app home
 java_default_path: "{{ java_home_directory }}/default" # Java default path (used by Jira service)
 jvm_minimum_memory: # JVM settings for Jira
 jvm_maximum_memory: # JVM settings for Jira
-time_zone: # Time zone
+time_zone: # Europe/Moscow # Time zone
 restore_from_backup: # yes or no
 update_packages: # dnf -y update
 backup_date: # "{{ ansible_date_time.date }}"

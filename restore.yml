@@ -28,7 +28,7 @@
     - name: Database server tasks
       block:    
         - name: Get db backup
-          shell: scp shareadmin@wilson-true.gs-labs.tv:/mnt/d/JIRA/db/jiradb.{{ backup_date }}.sql /tmp/.
+          shell: scp backup_user@backaup_server:/jira_db_backup.sql /tmp/.
           async: 5400
           poll: 1
 
