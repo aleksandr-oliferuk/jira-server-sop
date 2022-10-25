@@ -1,10 +1,10 @@
 # jira-server-service-operations
 
-Playbook and a set of roles for [deployment](deployment.yml) and [update](update.yml) of the [Atlassian Jira Software Server](https://www.atlassian.com/software/jira/download-journey) in a CentOS 8 Stream (cloud init template required on your proxmox node) + Nginx + PostgreSQL environment based on [Proxmox](https://www.proxmox.com) virtualization.
+[Playbook](playbook.yml) and a set of [roles](roles) for [deployment](deployment.yml) and [update](update.yml) of the [Atlassian Jira Software Server](https://www.atlassian.com/software/jira/download-journey) in a CentOS 8 Stream (cloud init template required on your proxmox node) + Nginx + PostgreSQL environment based on [Proxmox](https://www.proxmox.com) virtualization.
 
 ## Deployment and update
 
-The main variables (version of Jira, postgres, java, etc.) are in [defaults/main.yml](defaults/main.yml). To change the procedure from deployment to update, change the _procedure_ variable from **deployment** to **update**.
+The main variables (version of Jira, postgres, java, etc.) stored in [defaults/main.yml](defaults/main.yml). To change the procedure from deployment to update, change the _procedure_ variable from **deployment** to **update**.
 
 **Beware**, in the [deployment procedure](deployment.yml), the first step is to [stop and **remove(!)**](cleanup-vms.yml) existing VMs on the proxmox node and then [create new ones](create-vms.yml). The Proxmox VMs and host configuration are set here - [defaults/proxmox.yml](defaults/proxmox.yml).
 
