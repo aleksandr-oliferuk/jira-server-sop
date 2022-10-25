@@ -7,15 +7,7 @@ outputs:
       - 'https://{{ elk_fqdn }}:9200'
     username: '{{ elk_username }}'
     password: '{{ elk_password }}'
-id: 
-revision: 2
-outputs:
-  default:
-    type: elasticsearch
-    hosts:
-      - 'http://localhost:9200'
-    username: '{ES_USERNAME}'
-    password: '{ES_PASSWORD}'
+
 output_permissions:
   default:
     _elastic_agent_monitoring:
